@@ -4,6 +4,9 @@ Windows10-like ToastNotification written in tkinter
 
 A class that simulates Windows 10\'s Toast Notification
 
+### Preview
+
+![Preview](https://github.com/kaifhm/tkNotification/blob/master/screencapture.gif)
 
 ### Parameters
 
@@ -41,10 +44,6 @@ notification = Notification('Battery', 'Battery has been sufficiently charged.',
 notification.notify()
 
 ```
-
-### Preview
-
-![Preview](https://github.com/kaifhm/tkNotification/blob/master/screencapture.gif)
 
 ### Issues
 
