@@ -42,9 +42,9 @@ notification.notify()
 
 ```
 
-### Screenshot
+### Preview
 
-![screenshot]()
+![Preview](https://github.com/kaifhm/tkNotification/blob/master/screencapture.gif)
 
 ### Issues
 
