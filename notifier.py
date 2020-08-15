@@ -5,7 +5,6 @@ import types
 
 if os.name == 'nt':
     import ctypes
-    import winsound
 
     ctypes.windll.shcore.SetProcessDpiAwareness(1)
     windows = True
@@ -31,14 +30,15 @@ class Notification(tk.Tk):
 
     def __init__(self, title, message, icon_path=None, buttons=[], timeout=5) -> 'window':
         super().__init__()
+        self.geometry('-8-57')  # show window on bottom-right corner
         self.bg = '#282828'
         self.fg = '#fafafa'
 
-        self.resizable(False, False)#Window cannot be scaled
-        self.overrideredirect(1)#Don't show the titlebar
+        self.resizable(False, False)  # Window cannot be scaled
+        self.overrideredirect(1)  # Don't show the titlebar
         self.config(bg=self.bg)
-        self.lift()#show window on top of all windows
-        self.after(timeout * 1000, self.destroy)#close after timeout seconds
+        self.lift()  # show window on top of all windows
+        self.after(timeout * 1000, self.destroy)  # close after timeout seconds
 
         self.close_button()
         self.frame_notif = tk.Frame(bg=self.bg)
@@ -67,7 +67,7 @@ class Notification(tk.Tk):
                     'The image could not be read. Make sure the provided path is to an image')
             self.img = ImageTk.PhotoImage(self.img)
             self.icon = tk.Label(self.frame_notif, image=self.img, bg=self.bg)
-            self.icon.pack(side=tk.LEFT, anchor='nw', ipadx=1)
+            self.icon.pack(side=tk.LEFT, anchor='nw', padx=(15,5))
 
     def content(self, title, message):
         if not isinstance(title, str):
@@ -75,31 +75,34 @@ class Notification(tk.Tk):
         if not isinstance(message, str):
             raise TypeError('Provided message is not a string')
         self.frame_text = tk.Frame(self.frame_notif, width=24, bg=self.bg)
-        self.frame_text.pack(anchor='e')
+        self.frame_text.pack(anchor='e', padx=10)
 
+        self.update()
         if title:
 
             self.title = tk.Label(self.frame_text, text=title, font=(
                 'Verdana', 14, 'bold'), bg=self.bg, fg=self.fg)
-            self.title.pack(padx=9, pady=2, anchor='w')
-
+            self.title.grid(pady=2, row=0, sticky='w')
         self.label = tk.Label(self.frame_text, text=f"{message}", width=30, font=(
-            'Verdana', 12), wraplength=400, bg=self.bg, fg=self.fg, justify='left')
-        self.label.pack(pady=2, anchor='w')
+            'Verdana', 12), bg=self.bg, fg=self.fg, justify='left', anchor='w')
+        self.label.config(wraplength=self.label.winfo_reqwidth())
+        self.label.grid(pady=2, row=1, sticky='')
 
     def action_buttons(self, buttons):
 
         if buttons:
 
             self.update()
-            width = self.winfo_width()
-            self.frame_button = tk.Frame(self, bg=self.bg, width=width)
-            self.frame_button.pack(padx=3, pady=1)
+            width = self.label.winfo_reqwidth()
+            print(width)
+            self.frame_button = tk.Frame(self, bg=self.bg)
+            self.frame_button.pack(padx=3, pady=1, fill='x')
+            # self.frame_button.grid_columnconfigure()
 
-            len_buttons = len(buttons)
+            # len_buttons = len(buttons) * 11
 
-            button_kwg = {'width': width // (len_buttons * 11), 'font': ('Verdana', 10), 'height': 2,
-                          'fg': self.fg, 'bg': "#444", 'activebackground': "#666", 'activeforeground': self.fg, 'relief': 'flat'}
+            button_kwg = {'font': ('Verdana', 10), 'height': 2,
+                          'fg': self.fg, 'bg': "#444", 'activebackground': "#666", 'activeforeground': self.fg, 'relief': 'flat', 'highlightthickness': 0}
 
             for pair in buttons:
                 if type(pair[1]) == types.FunctionType:
@@ -107,17 +110,17 @@ class Notification(tk.Tk):
                                        text=str(pair[0]), command=pair[1], **button_kwg)
                 else:
                     raise TypeError(f'{pair[1]} is not a function')
-                button.grid(column=buttons.index(pair), row=0, pady=2)
+                self.frame_button.grid_columnconfigure(buttons.index(pair), weight=1)
+                button.grid(column=buttons.index(pair), row=0, pady=2, sticky='nsew')
                 button.bind('<Leave>', self.on_exit)
                 button.bind('<Enter>', self.on_enter)
 
     def notify(self):
-        self.geometry('-8-57')#show window on bottom-right corner
         self.mainloop()
 
     def callback(self, event):
         if type(event.widget) == tk.Button:
-            event.widget.config(relief='flat')#Don't depress button on press
+            event.widget.config(relief='flat')  # Don't depress button on press
 
     def on_enter(self, event):
         event.widget.config(bg='#666')
@@ -129,21 +132,24 @@ class Notification(tk.Tk):
         self.destroy()
 
 
-
 if __name__ == '__main__':
-    
+
     def ok():
         print('ok')
-
 
     def cancel():
         print('cancel')
 
-
     def close():
         print('close')
 
-    v = Notification('Title', 'This is dummy message used for development. If you are seeing this please go to the python module and delete 126th line. Thank you!',
+    v = Notification('Title', 'This is dummy message used for development. If you are seeing this please go to the python module and delete 146th line. Thank you!',
                      'Battery\\battery.ico', [
                          ('OK', ok), ('Cancel', cancel), ('Close', close)])
+    # v = Notification('Battery', 'Battery has been sufficiently charged. Please plug off the AC adapter now',
+    #                  buttons=[
+    #                      ('OK', ok), ('Cancel', cancel), ('Close', close)], timeout=5)
+
     v.notify()
+
+# in linux, if can't import ImageTk, run sudo python3-pil.imagetk
